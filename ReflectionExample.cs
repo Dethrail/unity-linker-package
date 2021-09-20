@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using UnityEngine;
-using UnityEngine.Scripting;
 
 public class ReflectionExample
 {
@@ -11,9 +10,8 @@ public class ReflectionExample
 
     // No other code directly references the Boink method, so when when stripping is enabled,
     // it will be removed unless the [Preserve] attribute is applied.
-    [Preserve]
     static void Boink()
     {
-        Debug.Log("Boink");
+        Debug.Log("##################### Boink");
     }
 }
