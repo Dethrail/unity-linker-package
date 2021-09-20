@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour
+namespace Test
 {
-    void Start()
+    public class NewBehaviourScript : MonoBehaviour
     {
-        ReflectionExample.InvokeBoinkByReflection();
+        void Start()
+        {
+            ReflectionExample.InvokeBoinkByReflection();
+        }
     }
+
 }
