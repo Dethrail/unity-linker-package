@@ -7,14 +7,12 @@ namespace Test
 {
     public class NewBehaviourScript : MonoBehaviour
     {
-        void Start()
-        {
-            typeof(ReflectionExample).GetMethod("Boink", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null);
+        public string methodName;
 
-            ReflectionExample t = new ReflectionExample();
-            
-            Debug.Log(t.boing);
-            Debug.Log(t.boing2);
+        private void Start()
+
+        {
+            ReflectionExample.InvokeBoinkByReflection(methodName);
         }
     }
 }
