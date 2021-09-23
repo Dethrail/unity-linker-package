@@ -7,81 +7,29 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.UnityLinker;
 using UnityEngine;
+using UnityEditor;
 
 namespace Test.Editor
 {
-    public class TestGenerateLinkXML : IUnityLinkerProcessor
+    public class LinkXmlInstaller : IUnityLinkerProcessor
     {
-        public string GenerateAdditionalLinkXmlFile(BuildReport report, UnityLinkerBuildPipelineData data)
+        int IOrderedCallback.callbackOrder => 0;
+        string IUnityLinkerProcessor.GenerateAdditionalLinkXmlFile(BuildReport report, UnityLinkerBuildPipelineData data)
         {
-            Debug.Log("GenerateAdditionalLinkXmlFile");
-            // Path?
-            var xmlPath = data.inputDirectory;
-            return xmlPath;
+            // This is pretty ugly, but it was the only thing I could think of in order to reliably get the path to link.xml
+            const string linkXmlGuid = "8d7cb6ae6b9603c49bb23799d7e53a4f"; // copied from link.xml.meta
+            var assetPath = AssetDatabase.GUIDToAssetPath(linkXmlGuid);
+            // assets paths are relative to the unity project root, but they don't correspond to actual folders for
+            // Packages that are embedded. I.e. it won't work if a package is installed as a git submodule
+            // So resolve it to an absolute path:
+            return Path.GetFullPath(assetPath);
         }
-
-        public void OnBeforeRun(BuildReport report, UnityLinkerBuildPipelineData data)
+        void IUnityLinkerProcessor.OnBeforeRun(BuildReport report, UnityLinkerBuildPipelineData data)
         {
-            CopyLinks();
-            Debug.Log("OnBeforeRun");
         }
-
-        public void OnAfterRun(BuildReport report, UnityLinkerBuildPipelineData data)
+        void IUnityLinkerProcessor.OnAfterRun(BuildReport report, UnityLinkerBuildPipelineData data)
         {
-            Debug.Log("OnAfterRun");
         }
-
-        private static void CopyLinks()
-        {
-            var req = UnityEditor.PackageManager.Client.List(true);
-            while (!req.IsCompleted)
-            {
-                continue;
-            }
-
-            var linkPaths = new List<(string, string)>();
-            var collection = req.Result;
-            foreach (var p in collection)
-            {
-                CollectLinks(linkPaths, p.resolvedPath, p.resolvedPath);
-            }
-
-            if (linkPaths.Count > 0)
-            {
-                foreach (var (absPath, relPath) in linkPaths)
-                {
-                    var destPath = $"{Application.dataPath}/PackageLinks/{relPath}";
-
-                    Debug.Log($"Copying {absPath} to {destPath}...");
-
-                    Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-                    File.Copy(absPath, destPath);
-                }
-            }
-            else
-            {
-                Debug.Log("No package links found.");
-            }
-        }
-
-        private static void CollectLinks(List<(string, string)> linkPaths, string rootPath, string path)
-        {
-            // check files
-            var files = Directory.GetFiles(path, "link.xml");
-            foreach (var file in files)
-            {
-                linkPaths.Add((file, file.Replace(rootPath, "")));
-            }
-
-            // check directories
-            var directories = Directory.GetDirectories(path);
-            foreach (var dir in directories)
-            {
-                CollectLinks(linkPaths, rootPath, dir);
-            }
-        }
-
-        public int callbackOrder { get; }
     }
 }
 #endif
