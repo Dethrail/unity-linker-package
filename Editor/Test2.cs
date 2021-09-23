@@ -54,7 +54,7 @@ namespace Test.Editor
 
                     Debug.Log($"Copying {absPath} to {destPath}...");
 
-                    Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
+                    Directory.CreateDirectory(Path.GetDirectoryName(destPath));
                     File.Copy(absPath, destPath);
                 }
             }
